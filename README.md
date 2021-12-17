@@ -23,7 +23,7 @@ npm start
 
 In your `.env` there are some other settings you can set as well:
 
-- `API_BASE` (default: "https://app.mural.co") - This is used for internal testing and can be adjusted to change the API base url.
+- `API_BASE` (default: "https://app.mural.co") - This can be adjusted to change the API base url.
 - `SERVER_PORT` (default: 5000) - You can adjust the port that the express server runs on.
 
 ## `public` Folder
