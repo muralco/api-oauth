@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hello World</title>
+  </head>
+  <body>
+    <div id="info">
+      <p>Loading...</p>
+    </div>
+    <script type="module">
+      import MuralFetch from "./mural-fetch.js";
+
+      const {
+        authFetch,
+        authRefresh,
+        inspectTokens,
+        clearAuth,
+        startAuth,
+        redirectForAuth,
+      } = MuralFetch();
+      const info = document.getElementById("info");
+
+      const getMe = () =>
+        authFetch("https://app.mural.co/api/public/v1/users/me");
+
+      const createLogIn = () => {
+        clearAuth();
+        const logIn = document.createElement("button");
+        logIn.textContent = "Log In";
+        logIn.addEventListener("click", redirectForAuth);
+        info.textContent = "";
+        info.append(logIn);
+      };
+      if (startAuth()) {
+        getMe()
+          .catch(async () => {
+            await authRefresh();
+            return getMe();
+          })
+          .then(async (r) => {
+            return r.json();
+          })
+          .then((response) => {
+            // Reset our #info element
+            info.textContent = "";
+            // Get the information from our api call
+            const { avatar, firstName, lastName } = response.value;
+            // Set up some data
+            const fullName = `${firstName} ${lastName}`;
+            // create the avatar image
+            const img = document.createElement("img");
+            img.src = avatar;
+            img.alt = fullName;
+            // create a safe place to put the name
+            const text = document.createTextNode(` ${fullName}`);
+            // create a header element
+            const h1 = document.createElement("h1");
+            // put everything inside of it
+            h1.append(img, text);
+            // create our log out button
+            const logOut = document.createElement("button");
+            logOut.textContent = "Log Out";
+            logOut.addEventListener("click", createLogIn);
+            // Add our new elements to the #info element.
+            info.append(h1, logOut);
+          })
+          .catch(() => {
+            createLogIn();
+          })
+          .finally(() => {
+            console.log(inspectTokens());
+          });
+      } else {
+        createLogIn();
+      }
+    </script>
+  </body>
+</html>
